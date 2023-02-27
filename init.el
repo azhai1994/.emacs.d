@@ -20,7 +20,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(company)))
+ '(package-selected-packages '(keycast company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -30,4 +30,15 @@
 
 ;;melpa
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/package/") t)
+(setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
+                         ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+(package-initialize)
+;; refresh
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+
+;;keycast
+(package-install 'keycast)
+(keycast-mote t)
