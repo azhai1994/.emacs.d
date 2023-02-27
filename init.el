@@ -1,3 +1,6 @@
+;;;init.el --- load the full configuration -*- lexical-binding: t  -*-
+
+
 ;;open window
 (setq inhibit-splash-screen t)
 (tool-bar-mode 1);-1 to unable
@@ -20,7 +23,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(keycast company)))
+ '(package-selected-packages
+   '(consult embark marginalia orderless vertico keycast company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -39,6 +43,34 @@
   (package-refresh-contents))
 
 
-;;keycast
+
+;;;minibuffer
+
+;keycast 
 (package-install 'keycast)
-(keycast-mote t)
+;(keycast-mode t)
+
+;;code completion
+;vertico to verticle
+(package-install 'vertico)
+(vertico-mode t)
+
+;orderless to orderless
+(package-install 'orderless)
+(setq completion-styles '(orderless))
+
+;Marginalia colorful
+(package-install 'marginalia)
+(marginalia-mode t)
+
+;Embark !!
+(package-install 'embarks)
+(global-set-key (kbd "C-;") 'embark-act)
+(setq prefix-help-command 'embark-prefix-help-command)
+
+;consult
+(package-install 'consult)
+(global-set-key (kbd "C-s") 'consult-line)
+
+
+;;;init.el ends here
