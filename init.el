@@ -1,3 +1,35 @@
+Add to the value of HOOK the function FUNCTION.
+FUNCTION is not added if already present.
+
+The place where the function is added depends on the DEPTH
+parameter.  DEPTH defaults to 0.  By convention, it should be
+a number between -100 and 100 where 100 means that the function
+should be at the very end of the list, whereas -100 means that
+the function should always come first.
+Since nothing is "always" true, don’t use 100 nor -100.
+When two functions have the same depth, the new one gets added after the
+old one if depth is strictly positive and before otherwise.
+
+For backward compatibility reasons, a symbol other than nil is
+interpreted as a DEPTH of 90.
+
+The optional fourth argument, LOCAL, if non-nil, says to modify
+the hook’s buffer-local value rather than its global value.
+This makes the hook buffer-local, and it makes t a member of the
+buffer-local value.  That acts as a flag to run the hook
+functions of the global value as well as in the local value.
+
+HOOK should be a symbol.  If HOOK is void, it is first set to
+nil.  If HOOK’s value is a single function, it is changed to a
+list of functions.
+
+FUNCTION may be any valid function, but it’s recommended to use a
+function symbol and not a lambda form.  Using a symbol will
+ensure that the function is not re-added if the function is
+edited, and using lambda forms may also have a negative
+performance impact when running ‘add-hook’ and ‘remove-hook’.
+
+  Probably introduced at or before Emacs version 19.20.
 ;;;init.el --- load the full configuration -*- lexical-binding: t  -*-
 
 
