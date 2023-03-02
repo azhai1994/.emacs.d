@@ -1,108 +1,95 @@
-Add to the value of HOOK the function FUNCTION.
-FUNCTION is not added if already present.
 
-The place where the function is added depends on the DEPTH
-parameter.  DEPTH defaults to 0.  By convention, it should be
-a number between -100 and 100 where 100 means that the function
-should be at the very end of the list, whereas -100 means that
-the function should always come first.
-Since nothing is "always" true, don’t use 100 nor -100.
-When two functions have the same depth, the new one gets added after the
-old one if depth is strictly positive and before otherwise.
+(setq inhibit-startup-message t)
 
-For backward compatibility reasons, a symbol other than nil is
-interpreted as a DEPTH of 90.
-
-The optional fourth argument, LOCAL, if non-nil, says to modify
-the hook’s buffer-local value rather than its global value.
-This makes the hook buffer-local, and it makes t a member of the
-buffer-local value.  That acts as a flag to run the hook
-functions of the global value as well as in the local value.
-
-HOOK should be a symbol.  If HOOK is void, it is first set to
-nil.  If HOOK’s value is a single function, it is changed to a
-list of functions.
-
-FUNCTION may be any valid function, but it’s recommended to use a
-function symbol and not a lambda form.  Using a symbol will
-ensure that the function is not re-added if the function is
-edited, and using lambda forms may also have a negative
-performance impact when running ‘add-hook’ and ‘remove-hook’.
-
-  Probably introduced at or before Emacs version 19.20.
-;;;init.el --- load the full configuration -*- lexical-binding: t  -*-
-
-
-;;open window
-(setq inhibit-splash-screen t)
-(tool-bar-mode 1);-1 to unable
 (scroll-bar-mode -1)
-(global-linum-mode 1)
+(tool-bar-mode -1)  
+(tooltip-mode -1)
+(set-fringe-mode 10) ;;margin
 
-;;init.el
-(defun open-init-file()
-  (interactive)
-  (find-file "~/.emacs.d/init.el"))
+(load-theme 'wombat)
+(set-face-attribute 'default nil :family "FiraCode Nerd Font" :height 130 :weight 'normal)
 
-(global-set-key (kbd "<f2>") 'open-init-file)
+;;Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;;initialize package source
+(require 'package)
+(setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
+                         ("nongnu" . "http://mirrors.ustc.edu.cn/elpa/nongnu/")))
 
-;;company
-(global-company-mode 1)
-(setq company-minimum-prefix-length 1)
-(setq company-idle-delay 0)
+(package-initialize)
+
+;;use-package
+(unless (or (package-installed-p 'use-package)
+   (package-install 'use-package)))
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(column-number-mode)
+
+;; Enable line numbers for some modes
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+;; Override some modes which derive from the above
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+
+;;(use-package command-log-mode)
+;;M-x global-command-log-mode
+;;clm/toggle-command-log-buffer
+
+;;counsel
+(use-package counsel)
+;;ivy
+(use-package ivy
+ ;;  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-f" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package all-the-icons
+  :ensure t)
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package which-key
+  :init (which-key-mode)
+;;  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(consult embark marginalia orderless vertico keycast company)))
+   '(which-key rainbow-delimiters doom-modeline doo-modeline use-package diminish counsel command-log-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-;;melpa
-(require 'package)
-(setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
-                         ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-(package-initialize)
-;; refresh
-(when (not package-archive-contents)
-  (package-refresh-contents))
-
-
-
-;;;minibuffer
-
-;keycast 
-(package-install 'keycast)
-;(keycast-mode t)
-
-;;code completion
-;vertico to verticle
-(package-install 'vertico)
-(vertico-mode t)
-
-;orderless to orderless
-(package-install 'orderless)
-(setq completion-styles '(orderless))
-
-;Marginalia colorful
-(package-install 'marginalia)
-(marginalia-mode t)
-
-;Embark !!
-(package-install 'embarks)
-(global-set-key (kbd "C-;") 'embark-act)
-(setq prefix-help-command 'embark-prefix-help-command)
-
-;consult
-(package-install 'consult)
-(global-set-key (kbd "C-s") 'consult-line)
-
-
-;;;init.el ends here
